@@ -46,10 +46,15 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     implementation("com.google.firebase:firebase-analytics")
 
     // Google Sign In
     implementation(libs.play.services.auth)
+
+    // Image Loading
+    implementation(libs.coil)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
