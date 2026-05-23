@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("25247786037-9fblu76kvd7muce5vo1rrp67clkddumq.apps.googleusercontent.com")
+            .requestIdToken("477262554309-r791a1kpnbrveg6jfh4id8or9ulosbmk.apps.googleusercontent.com")
             .requestEmail()
             .build()
 

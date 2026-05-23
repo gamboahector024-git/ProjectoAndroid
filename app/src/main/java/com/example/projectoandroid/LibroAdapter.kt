@@ -9,7 +9,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 
-class LibroAdapter(private var libros: List<Libro>) : RecyclerView.Adapter<LibroAdapter.LibroViewHolder>() {
+class LibroAdapter(
+    private var libros: List<Libro>,
+    private val onItemClick: (Libro) -> Unit,
+    private val onItemLongClick: (Libro) -> Unit
+) : RecyclerView.Adapter<LibroAdapter.LibroViewHolder>() {
 
     class LibroViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivPortada: ImageView = view.findViewById(R.id.ivPortada)
@@ -35,6 +39,15 @@ class LibroAdapter(private var libros: List<Libro>) : RecyclerView.Adapter<Libro
             }
         } else {
             holder.ivPortada.setImageResource(android.R.drawable.ic_menu_agenda)
+        }
+
+        holder.itemView.setOnClickListener {
+            onItemClick(libro)
+        }
+
+        holder.itemView.setOnLongClickListener {
+            onItemLongClick(libro)
+            true
         }
     }
 

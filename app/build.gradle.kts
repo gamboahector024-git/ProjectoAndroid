@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.projectoandroid"
+    namespace = "com.libros.projectoandroid"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.projectoandroid"
+        applicationId = "com.libros.projectoandroid"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -46,10 +46,15 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     implementation("com.google.firebase:firebase-analytics")
 
     // Google Sign In
     implementation(libs.play.services.auth)
+    
+    // Coil for images
+    implementation(libs.coil)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
