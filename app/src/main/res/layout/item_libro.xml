@@ -1,47 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    android:layout_margin="10dp"
+    android:backgroundTint="#FFF8E7"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="8dp"
+    app:strokeColor="#930500"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="14dp">
 
+        <!-- PORTADA -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivPortada"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="230dp"
             android:scaleType="centerCrop"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent"
-            android:src="@android:drawable/ic_menu_gallery" />
+            android:src="@android:drawable/ic_menu_gallery"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.LargeComponent"/>
 
+        <!-- TITULO -->
         <TextView
             android:id="@+id/tvTituloLibro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="14dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Título del Libro"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textColor="?attr/colorOnSurface"
-            android:textStyle="bold" />
+            android:textColor="#930500"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
 
-        <RatingBar
-            android:id="@+id/rbLibro"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
+        <!-- AUTOR -->
+        <TextView
+            android:id="@+id/tvAutorLibro"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:numStars="5"
-            android:progressTint="?attr/colorPrimary"
-            android:rating="0" />
+            android:text="Autor del libro"
+            android:textColor="#666666"
+            android:textSize="14sp"/>
+
+        <!-- CONTENEDOR INFERIOR -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- RATING -->
+            <RatingBar
+                android:id="@+id/rbLibro"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:progressTint="#930500"
+                android:rating="4"/>
+
+            <!-- ESPACIO -->
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <!-- BOTON -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVerLibro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="Ver"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="#FFF8E7"
+                android:backgroundTint="#930500"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp"
+                app:cornerRadius="16dp"/>
+
+        </LinearLayout>
 
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>
