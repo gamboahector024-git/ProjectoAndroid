@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.projectoandroid"
+    namespace = "com.libros.projectoandroid"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.projectoandroid"
+        applicationId = "com.libros.projectoandroid"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

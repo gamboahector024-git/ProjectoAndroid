@@ -1,49 +1,57 @@
 {
   "project_info": {
-    "project_number": "25247786037",
-    "project_id": "proyectoandriod-aed86",
-    "storage_bucket": "proyectoandriod-aed86.firebasestorage.app"
+    "project_number": "477262554309",
+    "project_id": "libros-35556",
+    "storage_bucket": "libros-35556.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:25247786037:android:11973137a9b8573f353d7c",
+        "mobilesdk_app_id": "1:477262554309:android:ae5187acad414651ad3cac",
         "android_client_info": {
-          "package_name": "com.example.projectoandroid"
+          "package_name": "com.libros.projectoandroid"
         }
       },
       "oauth_client": [
         {
-          "client_id": "25247786037-2svfl5huqi8mk03u1crod588k9rfor7c.apps.googleusercontent.com",
+          "client_id": "477262554309-gabqhts9lagu7pa185cnubla2sn5nn49.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.projectoandroid",
-            "certificate_hash": "4c704173f7205de40a7d087a5d9744b2fa1c040a"
-          }
-        },
-        {
-          "client_id": "25247786037-l7ri3619m5e2na12v5jhm2gnhjl92f1e.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.projectoandroid",
+            "package_name": "com.libros.projectoandroid",
             "certificate_hash": "6215c14a202532b23615b6ef41d77562ab81ca2c"
           }
         },
         {
-          "client_id": "25247786037-j4fvtb7psa7fatgd5m1bqpljl0j095b4.apps.googleusercontent.com",
+          "client_id": "477262554309-o9tt0aspen6aq9p7uvs9hcru9i8hne4n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.libros.projectoandroid",
+            "certificate_hash": "9aa82dd8cea6f9e079c11b6f1a1409fa2e768391"
+          }
+        },
+        {
+          "client_id": "477262554309-ule9gi8uvf7ksd9cvhjfh9hc19a9o2l5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.libros.projectoandroid",
+            "certificate_hash": "4c704173f7205de40a7d087a5d9744b2fa1c040a"
+          }
+        },
+        {
+          "client_id": "477262554309-r791a1kpnbrveg6jfh4id8or9ulosbmk.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDla4eq2947JrlgTjbLjFExKmJRpkg5MWA"
+          "current_key": "AIzaSyARBE1AzgBc_zhxdMv8Ms5OlriQEdPiKPI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "25247786037-9fblu76kvd7muce5vo1rrp67clkddumq.apps.googleusercontent.com",
+              "client_id": "477262554309-r791a1kpnbrveg6jfh4id8or9ulosbmk.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

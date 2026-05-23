@@ -1,4 +1,4 @@
-package com.example.projectoandroid
+package com.libros.projectoandroid
 
 data class Libro(
     val id: String = "",
@@ -9,5 +9,5 @@ data class Libro(
     val anio: String = "",
     val calificacion: Float = 0f,
     val pdfUrl: String = "",
-    val portadaUrl: String = "" // URL de la imagen de portada
+    val portadaUrl: String = ""
 )

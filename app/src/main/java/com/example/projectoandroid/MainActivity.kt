@@ -1,4 +1,4 @@
-package com.example.projectoandroid
+package com.libros.projectoandroid
 
 import android.content.Intent
 import android.os.Bundle
@@ -48,9 +48,9 @@ class MainActivity : AppCompatActivity() {
         auth = Firebase.auth
         progressBar = findViewById(R.id.progressBar)
 
-        // Configurar Google Sign In
+        // Configurar Google Sign In con el ID correcto de tu google-services.json
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("25247786037-9fblu76kvd7muce5vo1rrp67clkddumq.apps.googleusercontent.com")
+            .requestIdToken("477262554309-r791a1kpnbrveg6jfh4id8or9ulosbmk.apps.googleusercontent.com")
             .requestEmail()
             .build()
 

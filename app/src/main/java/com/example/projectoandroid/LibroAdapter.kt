@@ -1,4 +1,4 @@
-package com.example.projectoandroid
+package com.libros.projectoandroid
 
 import android.view.LayoutInflater
 import android.view.View
