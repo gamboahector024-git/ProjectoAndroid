@@ -67,17 +67,36 @@
                 android:progressTint="#930500"
                 android:rating="4"/>
 
-            <!-- ESPACIO -->
             <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
 
-            <!-- BOTON -->
+            <!-- BOTONES DE ACCIÓN -->
+            <ImageButton
+                android:id="@+id/btnEditarLibro"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_edit"
+                app:tint="#930500"
+                android:contentDescription="Editar" />
+
+            <ImageButton
+                android:id="@+id/btnEliminarLibro"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                app:tint="#D32F2F"
+                android:contentDescription="Eliminar" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnVerLibro"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
                 android:text="Ver"

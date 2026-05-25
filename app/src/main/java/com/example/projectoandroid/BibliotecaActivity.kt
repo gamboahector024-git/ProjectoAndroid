@@ -38,7 +38,8 @@ class BibliotecaActivity : AppCompatActivity() {
         adapter = LibroAdapter(
             libros = mutableListOf(),
             onItemClick = { libro -> abrirPdf(libro.pdfUrl) },
-            onItemLongClick = { libro -> mostrarDetallesLibro(libro) }
+            onEditClick = { libro -> editarLibro(libro) },
+            onDeleteClick = { libro -> confirmarEliminacion(libro) }
         )
         rvLibros.adapter = adapter
 
@@ -73,7 +74,6 @@ class BibliotecaActivity : AppCompatActivity() {
         filterIdioma.setOnItemClickListener { _, _, _, _ -> aplicarFiltros() }
         filterCalificacion.setOnItemClickListener { _, _, _, _ -> aplicarFiltros() }
         
-        // Listener para que el filtro de año funcione mientras escribes
         filterAnio.doOnTextChanged { _, _, _, _ -> aplicarFiltros() }
 
         btnClearFilters.setOnClickListener {
@@ -102,21 +102,35 @@ class BibliotecaActivity : AppCompatActivity() {
         adapter.updateLibros(librosFiltrados)
     }
 
-    private fun mostrarDetallesLibro(libro: Libro) {
-        val detalles = """
-            Título: ${libro.titulo}
-            Autor: ${libro.autor}
-            Género: ${libro.genero}
-            Año: ${libro.anio}
-            Idioma: ${libro.idioma}
-            Calificación: ${libro.calificacion} / 5.0
-        """.trimIndent()
+    private fun editarLibro(libro: Libro) {
+        val intent = Intent(this, AgregarLibroActivity::class.java).apply {
+            putExtra("EXTRA_ID", libro.id)
+            putExtra("EXTRA_TITULO", libro.titulo)
+            putExtra("EXTRA_AUTOR", libro.autor)
+            putExtra("EXTRA_GENERO", libro.genero)
+            putExtra("EXTRA_ANIO", libro.anio)
+            putExtra("EXTRA_IDIOMA", libro.idioma)
+            putExtra("EXTRA_CALIFICACION", libro.calificacion)
+            putExtra("EXTRA_PDF_URL", libro.pdfUrl)
+            putExtra("EXTRA_PORTADA_URL", libro.portadaUrl)
+        }
+        startActivity(intent)
+    }
 
+    private fun confirmarEliminacion(libro: Libro) {
         MaterialAlertDialogBuilder(this)
-            .setTitle("Información del Libro")
-            .setMessage(detalles)
-            .setPositiveButton("Leer") { _, _ -> abrirPdf(libro.pdfUrl) }
-            .setNegativeButton("Cerrar", null)
+            .setTitle("Eliminar Libro")
+            .setMessage("¿Estás seguro de que deseas eliminar '${libro.titulo}'? Esta acción no se puede deshacer.")
+            .setNegativeButton("Cancelar", null)
+            .setPositiveButton("Eliminar") { _, _ ->
+                db.collection("libros").document(libro.id).delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Libro eliminado", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Error al eliminar", Toast.LENGTH_SHORT).show()
+                    }
+            }
             .show()
     }
 

@@ -28,16 +28,18 @@ class MainActivity : AppCompatActivity() {
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        showLoading(false)
         if (result.resultCode == RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
                 firebaseAuthWithGoogle(account.idToken!!)
             } catch (e: ApiException) {
+                showLoading(false)
                 Log.e("GoogleSignIn", "Error: ${e.message}")
                 Toast.makeText(this, "Error de Google", Toast.LENGTH_SHORT).show()
             }
+        } else {
+            showLoading(false)
         }
     }
 
@@ -89,15 +91,22 @@ class MainActivity : AppCompatActivity() {
 
         googleBtn.setOnClickListener {
             showLoading(true)
-            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+            // Forzamos el selector de cuentas cerrando la sesión previa de Google
+            googleSignInClient.signOut().addOnCompleteListener {
+                googleSignInLauncher.launch(googleSignInClient.signInIntent)
+            }
         }
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener {
-            showLoading(false)
-            if (it.isSuccessful) navigateToHome()
+            if (it.isSuccessful) {
+                navigateToHome()
+            } else {
+                showLoading(false)
+                Toast.makeText(this, "Error al vincular con Firebase", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

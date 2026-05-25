@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import coil.load
 import java.util.UUID
 
 class AgregarLibroActivity : AppCompatActivity() {
@@ -27,6 +28,10 @@ class AgregarLibroActivity : AppCompatActivity() {
 
     private var pdfUri: Uri? = null
     private var portadaUri: Uri? = null
+    
+    private var libroId: String? = null
+    private var existingPdfUrl: String? = null
+    private var existingPortadaUrl: String? = null
 
     private val storage = FirebaseStorage.getInstance()
     private val db = FirebaseFirestore.getInstance()
@@ -59,6 +64,9 @@ class AgregarLibroActivity : AppCompatActivity() {
         ivPortadaPreview = findViewById(R.id.ivPortadaPreview)
         progressBar = findViewById(R.id.progressBar)
         
+        setupDropdowns()
+        checkIntentExtras()
+
         findViewById<Button>(R.id.btnSeleccionarPdf).setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/pdf" }
             selectPdfLauncher.launch(intent)
@@ -69,8 +77,10 @@ class AgregarLibroActivity : AppCompatActivity() {
             selectPortadaLauncher.launch(intent)
         }
 
-        findViewById<Button>(R.id.btnGuardarLibro).setOnClickListener { subirArchivos() }
+        findViewById<Button>(R.id.btnGuardarLibro).setOnClickListener { procesarGuardado() }
+    }
 
+    private fun setupDropdowns() {
         val generos = arrayOf("Terror", "Fantasía", "Ciencia Ficción", "Misterio", "Romance", "Aventura")
         autoGenero.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, generos))
         
@@ -78,35 +88,81 @@ class AgregarLibroActivity : AppCompatActivity() {
         autoIdioma.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, idiomas))
     }
 
-    private fun subirArchivos() {
+    private fun checkIntentExtras() {
+        libroId = intent.getStringExtra("EXTRA_ID")
+        if (libroId != null) {
+            // Modo Edición
+            etTitulo.setText(intent.getStringExtra("EXTRA_TITULO"))
+            etAutor.setText(intent.getStringExtra("EXTRA_AUTOR"))
+            autoGenero.setText(intent.getStringExtra("EXTRA_GENERO"), false)
+            etAnio.setText(intent.getStringExtra("EXTRA_ANIO"))
+            autoIdioma.setText(intent.getStringExtra("EXTRA_IDIOMA"), false)
+            rbCalificacion.rating = intent.getFloatExtra("EXTRA_CALIFICACION", 0f)
+            
+            existingPdfUrl = intent.getStringExtra("EXTRA_PDF_URL")
+            existingPortadaUrl = intent.getStringExtra("EXTRA_PORTADA_URL")
+            
+            if (!existingPdfUrl.isNullOrEmpty()) tvPdfStatus.text = "PDF cargado (Click para cambiar)"
+            if (!existingPortadaUrl.isNullOrEmpty()) ivPortadaPreview.load(existingPortadaUrl)
+            
+            findViewById<TextView>(android.R.id.title)?.text = "Editar Libro"
+            findViewById<Button>(R.id.btnGuardarLibro).text = "Actualizar Libro"
+        }
+    }
+
+    private fun procesarGuardado() {
         val titulo = etTitulo.text.toString().trim()
-        if (titulo.isEmpty() || pdfUri == null || portadaUri == null) {
-            Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+        if (titulo.isEmpty()) {
+            Toast.makeText(this, "El título es obligatorio", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (libroId == null && (pdfUri == null || portadaUri == null)) {
+            Toast.makeText(this, "Debes seleccionar PDF y Portada", Toast.LENGTH_SHORT).show()
             return
         }
 
         progressBar.visibility = View.VISIBLE
-        val storageRef = storage.reference
-        val pdfRef = storageRef.child("libros/pdfs/${UUID.randomUUID()}.pdf")
-        val imgRef = storageRef.child("libros/portadas/${UUID.randomUUID()}.jpg")
-
-        pdfRef.putFile(pdfUri!!).addOnSuccessListener {
-            pdfRef.downloadUrl.addOnSuccessListener { urlPdf ->
-                imgRef.putFile(portadaUri!!).addOnSuccessListener {
-                    imgRef.downloadUrl.addOnSuccessListener { urlImg ->
-                        guardarLibro(urlPdf.toString(), urlImg.toString())
-                    }
-                }
-            }
-        }.addOnFailureListener {
-            progressBar.visibility = View.GONE
-            Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
+        
+        if (pdfUri != null) {
+            subirPdf()
+        } else if (portadaUri != null) {
+            subirPortada(existingPdfUrl ?: "")
+        } else {
+            guardarEnFirestore(existingPdfUrl ?: "", existingPortadaUrl ?: "")
         }
     }
 
-    private fun guardarLibro(pdfUrl: String, imgUrl: String) {
+    private fun subirPdf() {
+        val pdfRef = storage.reference.child("libros/pdfs/${UUID.randomUUID()}.pdf")
+        pdfRef.putFile(pdfUri!!).addOnSuccessListener {
+            pdfRef.downloadUrl.addOnSuccessListener { urlPdf ->
+                if (portadaUri != null) {
+                    subirPortada(urlPdf.toString())
+                } else {
+                    guardarEnFirestore(urlPdf.toString(), existingPortadaUrl ?: "")
+                }
+            }
+        }.addOnFailureListener {
+            errorGuardado(it.message)
+        }
+    }
+
+    private fun subirPortada(urlPdf: String) {
+        val imgRef = storage.reference.child("libros/portadas/${UUID.randomUUID()}.jpg")
+        imgRef.putFile(portadaUri!!).addOnSuccessListener {
+            imgRef.downloadUrl.addOnSuccessListener { urlImg ->
+                guardarEnFirestore(urlPdf, urlImg.toString())
+            }
+        }.addOnFailureListener {
+            errorGuardado(it.message)
+        }
+    }
+
+    private fun guardarEnFirestore(pdfUrl: String, imgUrl: String) {
+        val id = libroId ?: UUID.randomUUID().toString()
         val libro = Libro(
-            id = UUID.randomUUID().toString(),
+            id = id,
             titulo = etTitulo.text.toString(),
             autor = etAutor.text.toString(),
             genero = autoGenero.text.toString(),
@@ -117,11 +173,19 @@ class AgregarLibroActivity : AppCompatActivity() {
             portadaUrl = imgUrl
         )
 
-        db.collection("libros").document(libro.id).set(libro)
+        db.collection("libros").document(id).set(libro)
             .addOnSuccessListener {
                 progressBar.visibility = View.GONE
-                Toast.makeText(this, "Libro guardado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, if (libroId == null) "Libro guardado" else "Libro actualizado", Toast.LENGTH_SHORT).show()
                 finish()
             }
+            .addOnFailureListener {
+                errorGuardado(it.message)
+            }
+    }
+
+    private fun errorGuardado(error: String?) {
+        progressBar.visibility = View.GONE
+        Toast.makeText(this, "Error: $error", Toast.LENGTH_SHORT).show()
     }
 }

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:backgroundTint="#FFF8E7"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="3dp"
+    app:strokeColor="#930500"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivPortada"
+            android:layout_width="80dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_gallery"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.LargeComponent"/>
+
+        <TextView
+            android:id="@+id/tvTituloLibro"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Título del Libro"
+            android:textColor="#930500"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivPortada"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvAutorLibro"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Autor"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/tvTituloLibro"
+            app:layout_constraintStart_toStartOf="@id/tvTituloLibro"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <RatingBar
+            android:id="@+id/rbLibro"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:progressTint="#930500"
+            android:isIndicator="true"
+            app:layout_constraintTop_toBottomOf="@id/tvAutorLibro"
+            app:layout_constraintStart_toStartOf="@id/tvTituloLibro"
+            android:layout_marginTop="2dp"/>
+
+        <!-- CONTENEDOR DE BOTONES REDUCIDO Y ALINEADO -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageButton
+                android:id="@+id/btnEditarLibro"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_edit"
+                app:tint="#930500"
+                android:scaleType="fitCenter"
+                android:contentDescription="Editar" />
+
+            <ImageButton
+                android:id="@+id/btnEliminarLibro"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="6dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                app:tint="#D32F2F"
+                android:scaleType="fitCenter"
+                android:contentDescription="Eliminar" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVerLibro"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:layout_marginStart="8dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="Ver"
+                android:textAllCaps="false"
+                android:textSize="10sp"
+                android:backgroundTint="#930500"
+                android:paddingHorizontal="10dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="6dp"/>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
