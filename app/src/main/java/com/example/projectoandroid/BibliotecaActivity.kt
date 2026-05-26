@@ -3,15 +3,21 @@ package com.libros.projectoandroid
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.RatingBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.doOnTextChanged
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -22,16 +28,24 @@ class BibliotecaActivity : AppCompatActivity() {
     
     private var listaCompletaLibros: List<Libro> = emptyList()
 
-    private lateinit var filterGenero: AutoCompleteTextView
-    private lateinit var filterIdioma: AutoCompleteTextView
-    private lateinit var filterAnio: TextInputEditText
-    private lateinit var filterCalificacion: AutoCompleteTextView
-    private lateinit var btnClearFilters: MaterialButton
+    // Componentes del Menú Lateral
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var btnMenu: MaterialButton
+    private lateinit var drawerSearchText: TextInputEditText
+    private lateinit var drawerAuthorText: TextInputEditText
+    private lateinit var drawerAnioText: TextInputEditText
+    private lateinit var drawerChipIdioma: ChipGroup
+    private lateinit var drawerGenero: AutoCompleteTextView
+    private lateinit var drawerRatingBar: RatingBar
+    private lateinit var btnAplicarFiltros: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_biblioteca)
 
+        drawerLayout = findViewById(R.id.drawerLayout)
+        btnMenu = findViewById(R.id.btnMenu)
+        
         rvLibros = findViewById(R.id.rvLibros)
         rvLibros.layoutManager = GridLayoutManager(this, 2)
         
@@ -43,7 +57,7 @@ class BibliotecaActivity : AppCompatActivity() {
         )
         rvLibros.adapter = adapter
 
-        setupFilters()
+        setupDrawerMenu()
 
         db.collection("libros").addSnapshotListener { value, error ->
             if (error != null) {
@@ -53,50 +67,53 @@ class BibliotecaActivity : AppCompatActivity() {
             listaCompletaLibros = value?.toObjects(Libro::class.java) ?: emptyList()
             aplicarFiltros()
         }
+
+        btnMenu.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
     }
 
-    private fun setupFilters() {
-        filterGenero = findViewById(R.id.filterGenero)
-        filterIdioma = findViewById(R.id.filterIdioma)
-        filterAnio = findViewById(R.id.filterAnio)
-        filterCalificacion = findViewById(R.id.filterCalificacion)
-        btnClearFilters = findViewById(R.id.btnClearFilters)
+    private fun setupDrawerMenu() {
+        val navigationView = findViewById<NavigationView>(R.id.navigationView)
+        
+        drawerSearchText = navigationView.findViewById(R.id.drawerSearchText)
+        drawerAuthorText = navigationView.findViewById(R.id.drawerAuthorText)
+        drawerAnioText = navigationView.findViewById(R.id.drawerAnioText)
+        drawerChipIdioma = navigationView.findViewById(R.id.drawerChipIdioma)
+        drawerGenero = navigationView.findViewById(R.id.drawerGenero)
+        drawerRatingBar = navigationView.findViewById(R.id.drawerRatingBar)
+        btnAplicarFiltros = navigationView.findViewById(R.id.btnAplicarFiltros)
 
         val generos = arrayOf("Terror", "Fantasía", "Ciencia Ficción", "Misterio", "Romance", "Aventura")
-        val idiomas = arrayOf("Español", "Inglés")
-        val calificaciones = arrayOf("1", "2", "3", "4", "5")
-        
-        filterGenero.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, generos))
-        filterIdioma.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, idiomas))
-        filterCalificacion.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, calificaciones))
-        
-        filterGenero.setOnItemClickListener { _, _, _, _ -> aplicarFiltros() }
-        filterIdioma.setOnItemClickListener { _, _, _, _ -> aplicarFiltros() }
-        filterCalificacion.setOnItemClickListener { _, _, _, _ -> aplicarFiltros() }
-        
-        filterAnio.doOnTextChanged { _, _, _, _ -> aplicarFiltros() }
+        drawerGenero.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, generos))
 
-        btnClearFilters.setOnClickListener {
-            filterGenero.setText("", false)
-            filterIdioma.setText("", false)
-            filterAnio.setText("")
-            filterCalificacion.setText("", false)
+        btnAplicarFiltros.setOnClickListener {
             aplicarFiltros()
+            drawerLayout.closeDrawer(GravityCompat.START)
         }
     }
 
     private fun aplicarFiltros() {
-        val genero = filterGenero.text.toString()
-        val idioma = filterIdioma.text.toString()
-        val anio = filterAnio.text.toString()
-        val califStr = filterCalificacion.text.toString()
-        val califMin = if (califStr.isNotEmpty()) califStr.toFloat() else 0f
+        val tituloBusqueda = if (::drawerSearchText.isInitialized) drawerSearchText.text.toString() else ""
+        val autorBusqueda = if (::drawerAuthorText.isInitialized) drawerAuthorText.text.toString() else ""
+        val anioBusqueda = if (::drawerAnioText.isInitialized) drawerAnioText.text.toString() else ""
+        val generoDrawer = if (::drawerGenero.isInitialized) drawerGenero.text.toString() else ""
+        val ratingMinimo = if (::drawerRatingBar.isInitialized) drawerRatingBar.rating else 0f
+        
+        val selectedChipId = if (::drawerChipIdioma.isInitialized) drawerChipIdioma.checkedChipId else View.NO_ID
+        val idiomaDrawer = if (selectedChipId != View.NO_ID) {
+            findViewById<Chip>(selectedChipId).text.toString()
+        } else "Todos"
 
         val librosFiltrados = listaCompletaLibros.filter { libro ->
-            (genero.isEmpty() || libro.genero == genero) &&
-            (idioma.isEmpty() || libro.idioma == idioma) &&
-            (anio.isEmpty() || libro.anio.contains(anio)) &&
-            (libro.calificacion >= califMin)
+            val matchTitulo = tituloBusqueda.isEmpty() || libro.titulo.contains(tituloBusqueda, ignoreCase = true)
+            val matchAutor = autorBusqueda.isEmpty() || libro.autor.contains(autorBusqueda, ignoreCase = true)
+            val matchAnio = anioBusqueda.isEmpty() || libro.anio == anioBusqueda
+            val matchGenero = generoDrawer.isEmpty() || libro.genero == generoDrawer
+            val matchIdioma = idiomaDrawer == "Todos" || libro.idioma == idiomaDrawer
+            val matchRating = libro.calificacion >= ratingMinimo
+
+            matchTitulo && matchAutor && matchAnio && matchGenero && matchIdioma && matchRating
         }
 
         adapter.updateLibros(librosFiltrados)
@@ -120,15 +137,12 @@ class BibliotecaActivity : AppCompatActivity() {
     private fun confirmarEliminacion(libro: Libro) {
         MaterialAlertDialogBuilder(this)
             .setTitle("Eliminar Libro")
-            .setMessage("¿Estás seguro de que deseas eliminar '${libro.titulo}'? Esta acción no se puede deshacer.")
+            .setMessage("¿Estás seguro de que deseas eliminar '${libro.titulo}'?")
             .setNegativeButton("Cancelar", null)
             .setPositiveButton("Eliminar") { _, _ ->
                 db.collection("libros").document(libro.id).delete()
                     .addOnSuccessListener {
                         Toast.makeText(this, "Libro eliminado", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(this, "Error al eliminar", Toast.LENGTH_SHORT).show()
                     }
             }
             .show()
@@ -139,16 +153,9 @@ class BibliotecaActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(Uri.parse(url), "application/pdf")
             intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-            
-            val chooser = Intent.createChooser(intent, "Abrir PDF con...")
-            try {
-                startActivity(chooser)
-            } catch (e: Exception) {
-                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                startActivity(browserIntent)
-            }
+            startActivity(Intent.createChooser(intent, "Abrir PDF"))
         } else {
-            Toast.makeText(this, "El libro no tiene un PDF asociado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Sin PDF", Toast.LENGTH_SHORT).show()
         }
     }
 }

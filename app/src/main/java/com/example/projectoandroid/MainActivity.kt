@@ -28,18 +28,26 @@ class MainActivity : AppCompatActivity() {
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)!!
-                firebaseAuthWithGoogle(account.idToken!!)
-            } catch (e: ApiException) {
-                showLoading(false)
-                Log.e("GoogleSignIn", "Error: ${e.message}")
-                Toast.makeText(this, "Error de Google", Toast.LENGTH_SHORT).show()
+        showLoading(false)
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val idToken = account?.idToken
+            if (idToken != null) {
+                showLoading(true)
+                firebaseAuthWithGoogle(idToken)
+            } else {
+                Toast.makeText(this, "No se pudo obtener el token de Google", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            showLoading(false)
+        } catch (e: ApiException) {
+            Log.e("GoogleSignIn", "Error code: ${e.statusCode}, message: ${e.message}")
+            val msg = when (e.statusCode) {
+                7 -> "Error de red. Verifica tu conexión."
+                10 -> "Error de configuración (Developer Error). Verifica el SHA-1 en Firebase."
+                12500 -> "Error de actualización de Google Play Services."
+                else -> "Error de Google (${e.statusCode})"
+            }
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -50,13 +58,21 @@ class MainActivity : AppCompatActivity() {
         auth = Firebase.auth
         progressBar = findViewById(R.id.progressBar)
 
+        // Usamos R.string.default_web_client_id generado por el plugin de Google Services
+        // para asegurar que siempre use el ID correcto configurado en google-services.json
+        val webClientId = getString(R.string.default_web_client_id)
+
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("477262554309-r791a1kpnbrveg6jfh4id8or9ulosbmk.apps.googleusercontent.com")
+            .requestIdToken(webClientId)
             .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
+        setupButtons()
+    }
+
+    private fun setupButtons() {
         val emailET = findViewById<EditText>(R.id.emailEditText)
         val passwordET = findViewById<EditText>(R.id.passwordEditText)
         val loginBtn = findViewById<Button>(R.id.loginButton)
@@ -73,6 +89,8 @@ class MainActivity : AppCompatActivity() {
                     if (it.isSuccessful) navigateToHome()
                     else Toast.makeText(this, "Error: ${it.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -91,7 +109,6 @@ class MainActivity : AppCompatActivity() {
 
         googleBtn.setOnClickListener {
             showLoading(true)
-            // Forzamos el selector de cuentas cerrando la sesión previa de Google
             googleSignInClient.signOut().addOnCompleteListener {
                 googleSignInLauncher.launch(googleSignInClient.signInIntent)
             }
@@ -100,12 +117,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential).addOnCompleteListener {
-            if (it.isSuccessful) {
+        auth.signInWithCredential(credential).addOnCompleteListener { task ->
+            showLoading(false)
+            if (task.isSuccessful) {
                 navigateToHome()
             } else {
-                showLoading(false)
-                Toast.makeText(this, "Error al vincular con Firebase", Toast.LENGTH_SHORT).show()
+                Log.e("FirebaseAuth", "Error: ${task.exception?.message}")
+                Toast.makeText(this, "Error al autenticar con Firebase", Toast.LENGTH_SHORT).show()
             }
         }
     }
