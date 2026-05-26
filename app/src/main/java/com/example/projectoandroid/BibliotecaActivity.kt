@@ -75,6 +75,8 @@ class BibliotecaActivity : AppCompatActivity() {
 
     private fun setupDrawerMenu() {
         val navigationView = findViewById<NavigationView>(R.id.navigationView)
+        // Como drawer_filters está incluido directamente en el NavigationView (no como header)
+        // podemos buscar los IDs directamente en el navigationView
         
         drawerSearchText = navigationView.findViewById(R.id.drawerSearchText)
         drawerAuthorText = navigationView.findViewById(R.id.drawerAuthorText)
@@ -84,8 +86,9 @@ class BibliotecaActivity : AppCompatActivity() {
         drawerRatingBar = navigationView.findViewById(R.id.drawerRatingBar)
         btnAplicarFiltros = navigationView.findViewById(R.id.btnAplicarFiltros)
 
-        val generos = arrayOf("Terror", "Fantasía", "Ciencia Ficción", "Misterio", "Romance", "Aventura")
+        val generos = arrayOf("Todos", "Terror", "Fantasía", "Ciencia Ficción", "Misterio", "Romance", "Aventura")
         drawerGenero.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, generos))
+        drawerGenero.setText("Todos", false)
 
         btnAplicarFiltros.setOnClickListener {
             aplicarFiltros()
@@ -94,29 +97,33 @@ class BibliotecaActivity : AppCompatActivity() {
     }
 
     private fun aplicarFiltros() {
-        val tituloBusqueda = if (::drawerSearchText.isInitialized) drawerSearchText.text.toString() else ""
-        val autorBusqueda = if (::drawerAuthorText.isInitialized) drawerAuthorText.text.toString() else ""
-        val anioBusqueda = if (::drawerAnioText.isInitialized) drawerAnioText.text.toString() else ""
-        val generoDrawer = if (::drawerGenero.isInitialized) drawerGenero.text.toString() else ""
+        val tituloBusqueda = if (::drawerSearchText.isInitialized) drawerSearchText.text.toString().trim() else ""
+        val autorBusqueda = if (::drawerAuthorText.isInitialized) drawerAuthorText.text.toString().trim() else ""
+        val anioBusqueda = if (::drawerAnioText.isInitialized) drawerAnioText.text.toString().trim() else ""
+        val generoDrawer = if (::drawerGenero.isInitialized) drawerGenero.text.toString().trim() else ""
         val ratingMinimo = if (::drawerRatingBar.isInitialized) drawerRatingBar.rating else 0f
         
         val selectedChipId = if (::drawerChipIdioma.isInitialized) drawerChipIdioma.checkedChipId else View.NO_ID
         val idiomaDrawer = if (selectedChipId != View.NO_ID) {
-            findViewById<Chip>(selectedChipId).text.toString()
+            drawerChipIdioma.findViewById<Chip>(selectedChipId).text.toString()
         } else "Todos"
 
         val librosFiltrados = listaCompletaLibros.filter { libro ->
             val matchTitulo = tituloBusqueda.isEmpty() || libro.titulo.contains(tituloBusqueda, ignoreCase = true)
             val matchAutor = autorBusqueda.isEmpty() || libro.autor.contains(autorBusqueda, ignoreCase = true)
-            val matchAnio = anioBusqueda.isEmpty() || libro.anio == anioBusqueda
-            val matchGenero = generoDrawer.isEmpty() || libro.genero == generoDrawer
-            val matchIdioma = idiomaDrawer == "Todos" || libro.idioma == idiomaDrawer
+            val matchAnio = anioBusqueda.isEmpty() || libro.anio.trim() == anioBusqueda
+            val matchGenero = generoDrawer.isEmpty() || generoDrawer == "Todos" || libro.genero.equals(generoDrawer, ignoreCase = true)
+            val matchIdioma = idiomaDrawer == "Todos" || libro.idioma.equals(idiomaDrawer, ignoreCase = true)
             val matchRating = libro.calificacion >= ratingMinimo
 
             matchTitulo && matchAutor && matchAnio && matchGenero && matchIdioma && matchRating
         }
 
         adapter.updateLibros(librosFiltrados)
+        
+        if (librosFiltrados.isEmpty() && listaCompletaLibros.isNotEmpty()) {
+            Toast.makeText(this, "No se encontraron libros con esos filtros", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun editarLibro(libro: Libro) {

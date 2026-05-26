@@ -103,8 +103,10 @@
             android:id="@+id/drawerChipIdioma"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:singleSelection="true">
+            app:singleSelection="true"
+            app:selectionRequired="true">
             <com.google.android.material.chip.Chip
+                android:id="@+id/chipTodos"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -113,6 +115,7 @@
                 app:chipBackgroundColor="#333333"
                 android:textColor="#FFFFFF"/>
             <com.google.android.material.chip.Chip
+                android:id="@+id/chipEspanol"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -120,6 +123,7 @@
                 app:chipBackgroundColor="#333333"
                 android:textColor="#FFFFFF"/>
             <com.google.android.material.chip.Chip
+                android:id="@+id/chipIngles"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -166,17 +170,13 @@
 
         <RatingBar
             android:id="@+id/drawerRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:numStars="5"
             android:stepSize="1"
             android:progressTint="#930500"
             android:secondaryProgressTint="#930500"
-            android:scaleX="1.5"
-            android:scaleY="1.5"
-            android:transformPivotX="0dp"
-            android:transformPivotY="0dp"/>
+            android:isIndicator="false"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAplicarFiltros"
